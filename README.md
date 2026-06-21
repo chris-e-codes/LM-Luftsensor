@@ -32,17 +32,16 @@ allgemeiner Innenraum-Luftmonitor.
 | # | Teil | Spec | ~Preis | Bezug |
 |---|------|------|--------|-------|
 | 1 | **Sensirion SEN55** | `SEN55-SDN-T` — PM + VOC + NOx + Temp/Feuchte, I²C | 30–38 € | [Reichelt](https://www.reichelt.de/de/de/index.html?ACTION=446&LA=0&nbc=1&q=SEN55-SDN-T) · [BerryBase](https://www.berrybase.de/search?search=SEN55) |
-| 2 | **ESP32-C3 Dev-Board** | beliebiges C3, ≥ 4 MB Flash, USB-C | 4–10 € | [BerryBase](https://www.berrybase.de/search?search=ESP32-C3) · [Amazon](https://www.amazon.de/s?k=ESP32-C3+devkit) |
-| 3 | **GC9A01 Runddisplay** | 1,28″, 240×240, SPI, 7-Pin | 7–13 € | [BerryBase](https://www.berrybase.de/search?search=GC9A01) · [Amazon](https://www.amazon.de/s?k=GC9A01+1.28) |
-| 4 | **JST-GH-Kabel** | 1,25 mm Raster, 6-polig, Buchse-auf-offen (SEN5x → C3) | 3–9 € | [BerryBase CAB-18079](https://www.berrybase.de/search?search=CAB-18079) · [Amazon](https://www.amazon.de/s?k=JST+GH+1.25mm+6+pin+kabel) |
-| 5 | Jumper-Kabel + USB-C-Kabel | fürs Display + Strom | paar € | überall |
+| 2 | **ESP32-C3 Dev-Board** | beliebiges C3, ≥ 4 MB Flash, USB-C | 4–10 € | [Amazon](https://www.amazon.de/dp/B0F8QQG1WM?&linkCode=ll2&tag=layermeister-21&linkId=b472edad2cf0129e305519de0df01b14&ref_=as_li_ss_tl) · [BerryBase](https://www.berrybase.de/search?search=ESP32-C3) |
+| 3 | **GC9A01 Runddisplay** | 1,28″, 240×240, SPI, 7-Pin | 7–13 € | [Amazon](https://www.amazon.de/dp/B0G1B7ST2V?tag=layermeister-21) · [BerryBase](https://www.berrybase.de/search?search=GC9A01) |
+| 4 | **JST-GH-Kabel** | 1,25 mm Raster, 6-polig, Buchse-auf-offen (SEN5x → C3) | 3–9 € | [Amazon](https://www.amazon.de/dp/B0FCMC2ZJK?&linkCode=ll2&tag=layermeister-21&linkId=68a4e1e3535c174cb71cdf6f25aeb828&ref_=as_li_ss_tl) · [BerryBase CAB-18079](https://www.berrybase.de/search?search=CAB-18079) |
+| 5 | **Dupont-Jumper-Kabel** | fürs Display (7 Adern) + USB-C-Kabel für Strom | paar € | [Amazon](https://www.amazon.de/dp/B0F98KBV61?th=1&linkCode=ll2&tag=layermeister-21&linkId=f7ff9f3f906449737911cafe1f88587a&ref_=as_li_ss_tl) |
 
 > 💡 **SEN55 vs. SEN66:** Der SEN66 hat zusätzlich CO₂, ist aber teurer und schlechter
 > lieferbar. 3D-Druck erzeugt kein CO₂, daher ist der SEN55 für diesen Zweck die bessere
 > Wahl. (CO₂ lässt sich später per SCD41 nachrüsten — siehe [Roadmap](#-roadmap).)
 
-<!-- Maintainer-Notiz: Die Shop-Links oben sind neutrale Links. Bei Bedarf durch eigene
-     Affiliate-Links (Amazon PartnerNet / Awin) ersetzen — siehe Affiliate-Abschnitt. -->
+> 🔗 Die Amazon-Links sind Affiliate-Links (Tag `layermeister-21`) — siehe [Affiliate-Hinweis](#-affiliate-links).
 
 ---
 
