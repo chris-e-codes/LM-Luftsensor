@@ -1,14 +1,14 @@
 # =============================================================================
-#  Air Quality Monitor — Sensirion SEN5x + ESP32-C3 + GC9A01 round display
-#  Project: https://github.com/chris-e-codes/LM-Luftsensor
+#  Luftqualitäts-Monitor — Sensirion SEN5x + ESP32-C3 + GC9A01-Runddisplay
+#  Projekt: https://github.com/chris-e-codes/LM-Luftsensor
 #
-#  Pipeline : SEN55 --I2C--> ESP32-C3 --MQTT--> (iobroker / Home Assistant / any broker)
-#  Display  : GC9A01 1.28" round, traffic-light ring (green / yellow / red)
+#  Pipeline : SEN55 --I2C--> ESP32-C3 --MQTT--> (iobroker / Home Assistant / beliebiger Broker)
+#  Display  : GC9A01 1,28" rund, Ampel-Ring (grün / gelb / rot)
 #
-#  Setup    : 1) copy  secrets.example.yaml -> secrets.yaml  and fill it in
-#             2) install ESPHome           ( pip install esphome )
-#             3) flash via USB the first time:  esphome run air-monitor.yaml
-#                (after that, updates go over Wi-Fi / OTA)
+#  Setup    : 1) secrets.example.yaml -> secrets.yaml kopieren und ausfüllen
+#             2) ESPHome installieren        ( pip install esphome )
+#             3) erstes Flashen per USB:      esphome run air-monitor.yaml
+#                (danach laufen Updates über WLAN / OTA)
 # =============================================================================
 
 esphome:
@@ -16,13 +16,13 @@ esphome:
   friendly_name: Air Quality Monitor
 
 esp32:
-  board: esp32-c3-devkitm-1      # generic ESP32-C3 dev board
+  board: esp32-c3-devkitm-1      # generisches ESP32-C3-Board
   framework:
     type: arduino
 
 logger:
 
-# Wireless updates after the first USB flash
+# Drahtlose Updates nach dem ersten USB-Flash
 ota:
   - platform: esphome
 
@@ -35,10 +35,10 @@ wifi:
 captive_portal:
 
 # ----------------------------------------------------------------------------
-# Data output via MQTT — works with iobroker, Node-RED, Home Assistant, etc.
+# Datenausgang per MQTT — läuft mit iobroker, Node-RED, Home Assistant usw.
 #
-# Home Assistant users: you can DELETE this whole `mqtt:` block and instead use
-# the native ESPHome API:
+# Home-Assistant-Nutzer: diesen ganzen `mqtt:`-Block LÖSCHEN und stattdessen die
+# native ESPHome-API verwenden:
 #     api:
 #       encryption:
 #         key: !secret api_key
@@ -51,11 +51,11 @@ mqtt:
   discovery: false
 
 # ----------------------------------------------------------------------------
-# Sensor: Sensirion SEN55 (SEN5x family) over I2C, address 0x69.
+# Sensor: Sensirion SEN55 (SEN5x-Familie) über I2C, Adresse 0x69.
 #
-# IMPORTANT wiring:
-#   * VDD needs 5V  (NOT 3.3V — the PM laser/fan won't run cleanly otherwise)
-#   * SEL must be tied to GND  -> selects I2C mode (without this you get nothing)
+# WICHTIG zur Verkabelung:
+#   * VDD braucht 5V  (NICHT 3,3V — sonst läuft der PM-Laser/Lüfter nicht sauber)
+#   * SEL muss an GND  -> wählt I2C-Modus (ohne das kommt nichts)
 # ----------------------------------------------------------------------------
 i2c:
   sda: GPIO5
@@ -70,16 +70,16 @@ sensor:
     pm_2_5:   { name: "PM2.5", id: pm_2_5 }
     pm_4_0:   { name: "PM4.0" }
     pm_10_0:  { name: "PM10" }
-    temperature: { name: "Temperature" }
-    humidity:    { name: "Humidity" }
+    temperature: { name: "Temperatur" }
+    humidity:    { name: "Luftfeuchte" }
     voc:  { name: "VOC Index", id: voc }
     nox:  { name: "NOx Index" }
 
 # ----------------------------------------------------------------------------
-# Display: GC9A01 1.28" round, 240x240, SPI.
+# Display: GC9A01 1,28" rund, 240x240, SPI.
 #
-# IMPORTANT: use the `mipi_spi` platform. The older `ili9xxx` platform shows
-# only STATIC NOISE on the GC9A01 in recent ESPHome versions — mipi_spi fixes it.
+# WICHTIG: die `mipi_spi`-Plattform nutzen. Das ältere `ili9xxx` zeigt beim
+# GC9A01 in aktuellen ESPHome-Versionen nur STATISCHES RAUSCHEN — mipi_spi fixt das.
 # ----------------------------------------------------------------------------
 spi:
   clk_pin: GPIO4
@@ -98,22 +98,22 @@ display:
     model: GC9A01A
     cs_pin: GPIO7
     dc_pin: GPIO10
-    reset_pin: GPIO1        # wire to the C3 pin labelled "1" (GPIO1) — NOT "RST"!
+    reset_pin: GPIO1        # an den C3-Pin „1" (GPIO1) — NICHT „RST"!
     data_rate: 10MHz
     color_order: bgr
-    invert_colors: true     # GC9A01 usually needs this; flip to false if colors look wrong
+    invert_colors: true     # GC9A01 braucht das meist; auf false drehen, wenn Farben falsch
     rotation: 0°
     update_interval: 2s
     lambda: |-
       it.fill(Color::BLACK);
 
-      // --- VOC: traffic-light colour by threshold ---
+      // --- VOC: Ampelfarbe nach Schwelle ---
       float voc_val = id(voc).state;
-      Color cv = Color(0x00FF00);                     // green
-      if      (voc_val > 250) cv = Color(0xFF0000);   // red
-      else if (voc_val > 150) cv = Color(0xFFFF00);   // yellow
+      Color cv = Color(0x00FF00);                     // grün
+      if      (voc_val > 250) cv = Color(0xFF0000);   // rot
+      else if (voc_val > 150) cv = Color(0xFFFF00);   // gelb
 
-      // outer ring in the VOC colour (4 circles = thicker)
+      // Rand-Ring in der VOC-Farbe (4 Kreise = dicker)
       it.circle(120, 120, 118, cv);
       it.circle(120, 120, 117, cv);
       it.circle(120, 120, 116, cv);
@@ -122,7 +122,7 @@ display:
       it.printf(120, 55,  id(font_small), Color(0xFFFFFF), TextAlign::CENTER, "VOC-Index");
       it.printf(120, 90,  id(font_big),   cv,              TextAlign::CENTER, "%.0f", voc_val);
 
-      // --- PM2.5 below, its own traffic-light ---
+      // --- PM2.5 unten, eigene Ampel ---
       float pm_val = id(pm_2_5).state;
       Color cp = Color(0x00FF00);
       if      (pm_val > 35) cp = Color(0xFF0000);
@@ -130,7 +130,7 @@ display:
       it.printf(120, 150, id(font_small), Color(0xFFFFFF), TextAlign::CENTER, "PM2.5 ug/m3");
       it.printf(120, 185, id(font_big),   cp,              TextAlign::CENTER, "%.1f", pm_val);
 
-# NOTE on the ESPHome lambda: never name a local variable the same as a
-# component `id` (e.g. `float voc` while a sensor has `id: voc`) — it shadows
-# the component and fails to compile with "base operand of '->' is not a pointer".
-# That's why the locals above are `voc_val` / `pm_val`.
+# HINWEIS zum ESPHome-Lambda: eine lokale Variable NIE so benennen wie eine
+# Komponenten-`id` (z. B. `float voc` während ein Sensor `id: voc` hat) — das
+# überdeckt die Komponente und scheitert mit „base operand of '->' is not a pointer".
+# Deshalb heißen die Locals oben `voc_val` / `pm_val`.

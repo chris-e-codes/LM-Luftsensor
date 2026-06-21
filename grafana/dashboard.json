@@ -3,7 +3,7 @@
     {
       "name": "DS_INFLUXDB",
       "label": "InfluxDB",
-      "description": "Your InfluxDB data source (the one your air-monitor data is logged to)",
+      "description": "Deine InfluxDB-Datenquelle (die, in der die air-monitor-Daten geloggt werden)",
       "type": "datasource",
       "pluginId": "influxdb",
       "pluginName": "InfluxDB"
@@ -40,8 +40,8 @@
     "list": [
       {
         "name": "prefix",
-        "label": "Measurement prefix",
-        "description": "iobroker InfluxDB path prefix. Default assumes MQTT topic 'air-monitor' on iobroker instance 0. Adjust to your setup (e.g. the part before .pm2_5.state).",
+        "label": "Mess-Prefix",
+        "description": "iobroker-InfluxDB-Pfad-Prefix. Default geht von MQTT-Topic 'air-monitor' auf iobroker-Instanz 0 aus. An dein Setup anpassen (der Teil vor .pm2_5.state).",
         "type": "textbox",
         "query": "mqtt.0.air-monitor.sensor",
         "current": { "text": "mqtt.0.air-monitor.sensor", "value": "mqtt.0.air-monitor.sensor" },
@@ -56,7 +56,7 @@
   "time": { "from": "now-6h", "to": "now" },
   "timepicker": {},
   "timezone": "browser",
-  "title": "Air Quality Monitor (SEN5x)",
+  "title": "Luftqualitäts-Monitor (SEN5x)",
   "uid": "",
   "version": 1,
   "weekStart": "",
@@ -64,7 +64,7 @@
     {
       "id": 1,
       "type": "stat",
-      "title": "PM2.5 (fine dust)",
+      "title": "PM2.5 (Feinstaub)",
       "gridPos": { "x": 0, "y": 0, "w": 6, "h": 5 },
       "datasource": { "type": "influxdb", "uid": "${DS_INFLUXDB}" },
       "targets": [
@@ -95,7 +95,7 @@
     {
       "id": 2,
       "type": "stat",
-      "title": "PM10 (coarse dust)",
+      "title": "PM10 (Grobstaub)",
       "gridPos": { "x": 6, "y": 0, "w": 6, "h": 5 },
       "datasource": { "type": "influxdb", "uid": "${DS_INFLUXDB}" },
       "targets": [
@@ -126,7 +126,7 @@
     {
       "id": 3,
       "type": "stat",
-      "title": "VOC Index",
+      "title": "VOC-Index",
       "gridPos": { "x": 12, "y": 0, "w": 6, "h": 5 },
       "datasource": { "type": "influxdb", "uid": "${DS_INFLUXDB}" },
       "targets": [
@@ -157,17 +157,17 @@
     {
       "id": 4,
       "type": "stat",
-      "title": "Temperature",
+      "title": "Temperatur",
       "gridPos": { "x": 18, "y": 0, "w": 6, "h": 5 },
       "datasource": { "type": "influxdb", "uid": "${DS_INFLUXDB}" },
       "targets": [
         {
           "datasource": { "type": "influxdb", "uid": "${DS_INFLUXDB}" },
           "refId": "A", "policy": "default", "resultFormat": "time_series", "orderByTime": "ASC",
-          "measurement": "${prefix}.temperature.state",
+          "measurement": "${prefix}.temperatur.state",
           "groupBy": [ { "type": "time", "params": ["$__interval"] }, { "type": "fill", "params": ["none"] } ],
           "select": [[{ "type": "field", "params": ["value"] }, { "type": "mean", "params": [] }]],
-          "tags": [], "alias": "Temperature"
+          "tags": [], "alias": "Temperatur"
         }
       ],
       "fieldConfig": {
@@ -188,8 +188,8 @@
     {
       "id": 5,
       "type": "timeseries",
-      "title": "Particulate Matter (PM, µg/m³)",
-      "description": "Rises during printing, drops with filtering. PM2.5 = key value (orange).",
+      "title": "Feinstaub-Verlauf (PM, µg/m³)",
+      "description": "Steigt beim Drucken, fällt mit Filter. PM2.5 = Leitwert (orange).",
       "gridPos": { "x": 0, "y": 5, "w": 24, "h": 9 },
       "datasource": { "type": "influxdb", "uid": "${DS_INFLUXDB}" },
       "targets": [
@@ -233,8 +233,8 @@
     {
       "id": 6,
       "type": "timeseries",
-      "title": "Gas Index (VOC + NOx)",
-      "description": "VOC reacts to outgassing (ABS/ASA). Reference lines: 100 = baseline, 250 = elevated. NOx stays ~1 unless something is burning.",
+      "title": "Gas-Index-Verlauf (VOC + NOx)",
+      "description": "VOC reagiert auf Ausgasung (ABS/ASA). Referenzlinien: 100 = Baseline, 250 = erhöht. NOx bleibt ~1, solange nichts verbrennt.",
       "gridPos": { "x": 0, "y": 14, "w": 24, "h": 9 },
       "datasource": { "type": "influxdb", "uid": "${DS_INFLUXDB}" },
       "targets": [
@@ -273,19 +273,19 @@
     {
       "id": 7,
       "type": "timeseries",
-      "title": "Climate (Temperature + Humidity)",
-      "description": "Context: room temperature drives VOC outgassing; humidity for reference.",
+      "title": "Klima (Temperatur + Luftfeuchte)",
+      "description": "Kontext: Raumwärme treibt die VOC-Ausgasung; Feuchte zur Orientierung.",
       "gridPos": { "x": 0, "y": 23, "w": 24, "h": 7 },
       "datasource": { "type": "influxdb", "uid": "${DS_INFLUXDB}" },
       "targets": [
         { "datasource": { "type": "influxdb", "uid": "${DS_INFLUXDB}" }, "refId": "A", "policy": "default", "resultFormat": "time_series", "orderByTime": "ASC",
-          "measurement": "${prefix}.temperature.state",
+          "measurement": "${prefix}.temperatur.state",
           "groupBy": [ { "type": "time", "params": ["$__interval"] }, { "type": "fill", "params": ["none"] } ],
-          "select": [[{ "type": "field", "params": ["value"] }, { "type": "mean", "params": [] }]], "tags": [], "alias": "Temperature" },
+          "select": [[{ "type": "field", "params": ["value"] }, { "type": "mean", "params": [] }]], "tags": [], "alias": "Temperatur" },
         { "datasource": { "type": "influxdb", "uid": "${DS_INFLUXDB}" }, "refId": "B", "policy": "default", "resultFormat": "time_series", "orderByTime": "ASC",
-          "measurement": "${prefix}.humidity.state",
+          "measurement": "${prefix}.luftfeuchte.state",
           "groupBy": [ { "type": "time", "params": ["$__interval"] }, { "type": "fill", "params": ["none"] } ],
-          "select": [[{ "type": "field", "params": ["value"] }, { "type": "mean", "params": [] }]], "tags": [], "alias": "Humidity" }
+          "select": [[{ "type": "field", "params": ["value"] }, { "type": "mean", "params": [] }]], "tags": [], "alias": "Luftfeuchte" }
       ],
       "fieldConfig": {
         "defaults": {
@@ -296,13 +296,13 @@
           }
         },
         "overrides": [
-          { "matcher": { "id": "byName", "options": "Temperature" },
+          { "matcher": { "id": "byName", "options": "Temperatur" },
             "properties": [ { "id": "color", "value": { "mode": "fixed", "fixedColor": "red" } } ] },
-          { "matcher": { "id": "byName", "options": "Humidity" },
+          { "matcher": { "id": "byName", "options": "Luftfeuchte" },
             "properties": [
               { "id": "unit", "value": "humidity" },
               { "id": "custom.axisPlacement", "value": "right" },
-              { "id": "custom.axisLabel", "value": "% RH" },
+              { "id": "custom.axisLabel", "value": "% rF" },
               { "id": "color", "value": { "mode": "fixed", "fixedColor": "blue" } } ] }
         ]
       },
