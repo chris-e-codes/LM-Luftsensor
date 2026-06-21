@@ -1,0 +1,136 @@
+# =============================================================================
+#  Air Quality Monitor — Sensirion SEN5x + ESP32-C3 + GC9A01 round display
+#  Project: https://github.com/chris-e-codes/LM-Luftsensor
+#
+#  Pipeline : SEN55 --I2C--> ESP32-C3 --MQTT--> (iobroker / Home Assistant / any broker)
+#  Display  : GC9A01 1.28" round, traffic-light ring (green / yellow / red)
+#
+#  Setup    : 1) copy  secrets.example.yaml -> secrets.yaml  and fill it in
+#             2) install ESPHome           ( pip install esphome )
+#             3) flash via USB the first time:  esphome run air-monitor.yaml
+#                (after that, updates go over Wi-Fi / OTA)
+# =============================================================================
+
+esphome:
+  name: air-monitor
+  friendly_name: Air Quality Monitor
+
+esp32:
+  board: esp32-c3-devkitm-1      # generic ESP32-C3 dev board
+  framework:
+    type: arduino
+
+logger:
+
+# Wireless updates after the first USB flash
+ota:
+  - platform: esphome
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+  ap:
+    ssid: "Air-Monitor Setup"
+    password: !secret ap_password
+captive_portal:
+
+# ----------------------------------------------------------------------------
+# Data output via MQTT — works with iobroker, Node-RED, Home Assistant, etc.
+#
+# Home Assistant users: you can DELETE this whole `mqtt:` block and instead use
+# the native ESPHome API:
+#     api:
+#       encryption:
+#         key: !secret api_key
+# ----------------------------------------------------------------------------
+mqtt:
+  broker: !secret mqtt_broker
+  username: !secret mqtt_user
+  password: !secret mqtt_password
+  topic_prefix: air-monitor
+  discovery: false
+
+# ----------------------------------------------------------------------------
+# Sensor: Sensirion SEN55 (SEN5x family) over I2C, address 0x69.
+#
+# IMPORTANT wiring:
+#   * VDD needs 5V  (NOT 3.3V — the PM laser/fan won't run cleanly otherwise)
+#   * SEL must be tied to GND  -> selects I2C mode (without this you get nothing)
+# ----------------------------------------------------------------------------
+i2c:
+  sda: GPIO5
+  scl: GPIO6
+  scan: true
+
+sensor:
+  - platform: sen5x
+    address: 0x69
+    update_interval: 10s
+    pm_1_0:   { name: "PM1.0" }
+    pm_2_5:   { name: "PM2.5", id: pm_2_5 }
+    pm_4_0:   { name: "PM4.0" }
+    pm_10_0:  { name: "PM10" }
+    temperature: { name: "Temperature" }
+    humidity:    { name: "Humidity" }
+    voc:  { name: "VOC Index", id: voc }
+    nox:  { name: "NOx Index" }
+
+# ----------------------------------------------------------------------------
+# Display: GC9A01 1.28" round, 240x240, SPI.
+#
+# IMPORTANT: use the `mipi_spi` platform. The older `ili9xxx` platform shows
+# only STATIC NOISE on the GC9A01 in recent ESPHome versions — mipi_spi fixes it.
+# ----------------------------------------------------------------------------
+spi:
+  clk_pin: GPIO4
+  mosi_pin: GPIO3
+
+font:
+  - file: "gfonts://Roboto"
+    id: font_big
+    size: 40
+  - file: "gfonts://Roboto"
+    id: font_small
+    size: 16
+
+display:
+  - platform: mipi_spi
+    model: GC9A01A
+    cs_pin: GPIO7
+    dc_pin: GPIO10
+    reset_pin: GPIO1        # wire to the C3 pin labelled "1" (GPIO1) — NOT "RST"!
+    data_rate: 10MHz
+    color_order: bgr
+    invert_colors: true     # GC9A01 usually needs this; flip to false if colors look wrong
+    rotation: 0°
+    update_interval: 2s
+    lambda: |-
+      it.fill(Color::BLACK);
+
+      // --- VOC: traffic-light colour by threshold ---
+      float voc_val = id(voc).state;
+      Color cv = Color(0x00FF00);                     // green
+      if      (voc_val > 250) cv = Color(0xFF0000);   // red
+      else if (voc_val > 150) cv = Color(0xFFFF00);   // yellow
+
+      // outer ring in the VOC colour (4 circles = thicker)
+      it.circle(120, 120, 118, cv);
+      it.circle(120, 120, 117, cv);
+      it.circle(120, 120, 116, cv);
+      it.circle(120, 120, 115, cv);
+
+      it.printf(120, 55,  id(font_small), Color(0xFFFFFF), TextAlign::CENTER, "VOC-Index");
+      it.printf(120, 90,  id(font_big),   cv,              TextAlign::CENTER, "%.0f", voc_val);
+
+      // --- PM2.5 below, its own traffic-light ---
+      float pm_val = id(pm_2_5).state;
+      Color cp = Color(0x00FF00);
+      if      (pm_val > 35) cp = Color(0xFF0000);
+      else if (pm_val > 15) cp = Color(0xFFFF00);
+      it.printf(120, 150, id(font_small), Color(0xFFFFFF), TextAlign::CENTER, "PM2.5 ug/m3");
+      it.printf(120, 185, id(font_big),   cp,              TextAlign::CENTER, "%.1f", pm_val);
+
+# NOTE on the ESPHome lambda: never name a local variable the same as a
+# component `id` (e.g. `float voc` while a sensor has `id: voc`) — it shadows
+# the component and fails to compile with "base operand of '->' is not a pointer".
+# That's why the locals above are `voc_val` / `pm_val`.

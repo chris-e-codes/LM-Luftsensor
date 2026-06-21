@@ -1,0 +1,9 @@
+# ESPHome
+secrets.yaml
+.esphome/
+*.bin
+
+# OS junk
+.DS_Store
+Thumbs.db
+desktop.ini
